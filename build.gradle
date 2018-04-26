@@ -21,24 +21,36 @@ project.ext {
 }
 
 dependencies {
+    compile  'commons-lang:commons-lang:2.6'
+    
     testCompile 'io.cucumber:cucumber-java:' + cucumberVersion
     testCompile 'io.cucumber:cucumber-junit:' + cucumberVersion
     testCompile 'io.cucumber:pro-plugin:' + cucumberProVersion
     testCompile 'junit:junit:' + junitVersion
+    testCompile 'io.cucumber:cucumber-picocontainer:2.3.1'    
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', '', System.getProperty('feature', 'features/')]
+        }
+    }
 }
 
 repositories {
     mavenCentral()
 }
 
-addCucumberSuite 'test'
-
 cucumber {
     maxParallelForks = 3
-}
-
-test {
-    stepDefinitionRoots = ['skeleton']
-    featureRoots = ['skeleton']
-    plugins = ['io.cucumber.pro.JsonReporter:full-gradle']
 }
