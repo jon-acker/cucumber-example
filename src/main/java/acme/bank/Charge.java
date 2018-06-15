@@ -1,8 +1,5 @@
 package acme.bank;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 public class Charge {
     private double amount;
 
