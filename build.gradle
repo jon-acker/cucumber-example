@@ -12,22 +12,30 @@ buildscript {
 plugins {
     id 'java'
     id 'com.commercehub.cucumber-jvm' version '0.13'
+    id 'org.springframework.boot' version '2.0.3.RELEASE'
 }
 
 project.ext {
     cucumberVersion = '2.3.1'
-    cucumberProVersion = '2.0.4'
     junitVersion = '4.12'
 }
 
+ext {
+    springBootVersion = '2.0.3.RELEASE'
+}
+
 dependencies {
-    compile  'commons-lang:commons-lang:2.6'
-    
+    compile 'commons-lang:commons-lang:2.6'
+    compile 'org.springframework.boot:spring-boot-starter-web:' + springBootVersion
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa:' + springBootVersion
+    compile 'com.h2database:h2:1.4.197'
+
     testCompile 'io.cucumber:cucumber-java:' + cucumberVersion
     testCompile 'io.cucumber:cucumber-junit:' + cucumberVersion
-    testCompile 'io.cucumber:pro-plugin:' + cucumberProVersion
     testCompile 'junit:junit:' + junitVersion
-    testCompile 'io.cucumber:cucumber-picocontainer:2.3.1'    
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.springframework.boot:spring-boot-starter-test:2.0.3.RELEASE'
+    testCompile group: 'info.cukes', name: 'cucumber-spring', version: '1.2.5'
 }
 
 configurations {
@@ -36,13 +44,25 @@ configurations {
     }
 }
 
+
 task cucumber() {
     dependsOn assemble, compileTestJava
     doLast {
         javaexec {
             main = "cucumber.api.cli.Main"
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', '', System.getProperty('feature', 'features/')]
+            args = ['--plugin', 'pretty', '--glue', 'classpath:acme', System.getProperty('feature', 'features/')]
+        }
+    }
+}
+
+task e2e() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'classpath:acme.e2e', System.getProperty('feature', 'src/test/features/')]
         }
     }
 }
@@ -54,3 +74,5 @@ repositories {
 cucumber {
     maxParallelForks = 3
 }
+
+
