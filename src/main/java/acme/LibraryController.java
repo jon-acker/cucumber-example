@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 
 @RestController
-public class BasketController {
+public class LibraryController {
 
     private final HttpSession session;
 
-    public BasketController(HttpSession session) {
+    public LibraryController(HttpSession session) {
         this.session = session;
     }
 
-    @RequestMapping(value = "/basket/add")
+    @RequestMapping(value = "/register")
     public String add() {
         return session.toString();
     }
