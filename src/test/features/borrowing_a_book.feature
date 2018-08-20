@@ -18,39 +18,7 @@ Feature:
   Background:
 
   Scenario: Borrower is lent a book that's in stock
-    Given there is 1 copy of "TDD for Dummies" in stock
-    When Jon borrows the book "TDD for Dummies"
-    Then Jon should have been lent "TDD for Dummies"
-    And there should be no copies of "TDD for Dummies" in stock
 
-  Scenario:
-    Given there are no copies of "TDD for Dummies" in stock
-    When Jon tries to borrow the book "TDD for Dummies"
-    Then Jon should be told "sorry you can't borrow this book"
-
-  Scenario: Borrower is already at his borrowing limit
-    Given Jon has borrowed the following books
-      | TDD for Dummies |
-      | Advanced TDD    |
-    When Jon tries to borrow the book "Super advanced TDD"
-    Then Jon should be told "sorry, you are at your borrowing limit"
-
-  Scenario: Returning a book increments stock levels
-    Given Jon has been lent the book "Advanced TDD"
-    And there are 2 copies of the book "Advanced TDD" left in stock
-    When Jon returns the book "Advanced TDD"
-    Then there should be 3 copies of "Advance TDD" in stock
-
-
-  Scenario: Returning a book late incurs a fine
-    Given Jon was lent the book "Advanced TDD" on 1st Jun at 12:00
-    When Jon returns the book "Advanced TDD" on 4th Jun at 12:00
-    Then Jon's account should be charged a £5 fine
-
-  Scenario: Returning a book on time does not incur fine
-    Given Jon was lent the book "Advanced TDD" on 1st Jun at 12:00
-    When Jon returns the book "Advanced TDD" on 4th Jun at 11:59
-    Then Jon's account should not be charged a fine
 
 
 
