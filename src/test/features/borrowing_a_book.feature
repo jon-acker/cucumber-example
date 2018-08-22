@@ -38,8 +38,8 @@ Feature:
     Given Jon has the following books out on loan:
       | TDD For Wizards   |
       | Lord of the Rings |
-    When Jon tries to borrow a book "Harry Potter"
-    Then Jon should be told "you cannot borrow more than 2 books"
+    When Jon tries to borrow the book "Harry Potter"
+    Then Jon should be told "You cannot borrow more than 2 books"
 
   Scenario: Loan is denied because Jon has unpaid fines
     Given Jon has a £5 unpaid fine
