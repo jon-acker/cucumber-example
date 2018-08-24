@@ -6,11 +6,15 @@ import acme.domain.transforms.MemberTransformer;
 import cucumber.api.DataTable;
 import cucumber.api.PendingException;
 import cucumber.api.Transform;
+import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.core.Is.is;
@@ -19,18 +23,25 @@ import static org.junit.Assert.*;
 public class LibraryStepDefinitions {
 
     private StockManager stockManager;
+
     private InMemoryLibraryMembership membership;
+
     private Library library;
     private LoanException caughtException;
-    private Loans loans;
+    private InMemoryLoans loans;
     private FineManager fineManager;
+    private SystemClock systemClock;
 
-    public LibraryStepDefinitions() {
+    private DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendPattern("MMMM dd, yyyy H:m:s").toFormatter();
+
+    @Before
+    public void libraryStepDefinitions() {
         stockManager = new StockManager();
         membership = new InMemoryLibraryMembership();
         loans = new InMemoryLoans();
-        fineManager  = new InMemoryFineManager();
-        library = new Library(membership, loans, fineManager);
+        fineManager = new InMemoryFineManager();
+        systemClock = new SystemClock(LocalDateTime.now());
+        library = new Library(membership, loans, fineManager, systemClock);
     }
 
     @Given("^(.*) is a member of the library$")
@@ -44,7 +55,7 @@ public class LibraryStepDefinitions {
     }
 
     @When("^(.*) borrows the book \"([^\"]*)\" from the library$")
-    public void jonBorrowsTheBookFromTheLibrary(@Transform(MemberTransformer.class) Member member, @Transform(BookTransformer.class) Book book) throws Throwable {
+    public void memberBorrowsTheBookFromTheLibrary(@Transform(MemberTransformer.class) Member member, @Transform(BookTransformer.class) Book book) throws Throwable {
         library.lend(book, member);
     }
 
@@ -56,7 +67,7 @@ public class LibraryStepDefinitions {
     @And("^the book \"([^\"]*)\" should be loaned to (.*)$")
     public void theBookShouldBeLoanedToJon(@Transform(BookTransformer.class) Book book,
                                            @Transform(MemberTransformer.class) Member member) throws Throwable {
-        assertThat(library.whoHas(book), is(member));
+        assertTrue(loans.bookIsLoanedToMember(book, member));
     }
 
     @Given("^Mark is not a member of the library$")
@@ -64,8 +75,9 @@ public class LibraryStepDefinitions {
     }
 
     @When("^(.*) tries to borrow the book \"([^\"]*)\"$")
-    public void triesToBorrowTheBook(@Transform(MemberTransformer.class) Member member,
-                                     @Transform(BookTransformer.class) Book book) throws Throwable {
+    public void triesToBorrowTheBook(
+            @Transform(MemberTransformer.class) Member member,
+            @Transform(BookTransformer.class) Book book) throws Throwable {
         try {
             library.lend(book, member);
         } catch (LoanException exception) {
@@ -87,7 +99,7 @@ public class LibraryStepDefinitions {
     @Given("^(.*) has the following books out on loan:$")
     public void memberHasTheFollowingBooksOutOnLoan(@Transform(MemberTransformer.class) Member member, DataTable bookList) throws Throwable {
 
-        bookList.raw().forEach(x -> x.forEach(bookName -> loans.add(new Book(bookName), member)));
+        bookList.raw().forEach(x -> x.forEach(bookName -> loans.add(new Book(bookName), member, LocalDateTime.now())));
 
     }
 
@@ -99,29 +111,31 @@ public class LibraryStepDefinitions {
 
     @Given("^(.+) has a £(\\d+) unpaid fine$")
     public void jonHasAGBPUnpaidFine(@Transform(MemberTransformer.class) Member member, int fineAmount) throws Throwable {
-        fineManager.add(member,fineAmount);
+        fineManager.add(member, fineAmount);
     }
 
-    @Given("^Jon borrowed the book \"([^\"]*)\" on (\\d+)th March$")
-    public void jonBorrowedTheBookOnThMarch(String arg0, int arg1) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @Given("^(.+) borrowed the book \"([^\"]*)\" on (\\d+)th of (\\w+)$")
+    public void jonBorrowedTheBookOnThMarch(
+            @Transform(MemberTransformer.class) Member member,
+            @Transform(BookTransformer.class) Book book,
+            int day, String month) throws Throwable {
+
+        loans.add(book, member, LocalDateTime.parse(month + " " + day + ", 2018 00:00:00", formatter));
     }
 
-    @When("^Jon returns the book \"([^\"]*)\" on the (\\d+)th of March at (\\d+):(\\d+)$")
-    public void jonReturnsTheBookOnTheThOfMarchAt(String arg0, int arg1, int arg2, int arg3) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @When("^(.+) returns the book \"([^\"]*)\" on the (\\d+)(th|st) of (\\w+) at (\\d+):(\\d+)$")
+    public void memberReturnsTheBookOnDateAtTime(
+            @Transform(MemberTransformer.class) Member member,
+            @Transform(BookTransformer.class) Book book,
+            int day, String ignore, String month, int hour, int minute
+    ) throws Throwable {
+        systemClock.setDateTime(LocalDateTime.parse(month + " " + day + ", 2018 " + hour + ":" + minute + ":00", formatter));
+
+        library.returnMy(book);
     }
 
     @Then("^Jon should not be charged a fine$")
     public void jonShouldNotBeChargedAFine() throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
-    }
-
-    @When("^Jon returns the book \"([^\"]*)\" on the (\\d+)st of March at (\\d+):(\\d+)$")
-    public void jonReturnsTheBookOnTheStOfMarchAt(String arg0, int arg1, int arg2, int arg3) throws Throwable {
         // Write code here that turns the phrase above into concrete actions
         throw new PendingException();
     }

@@ -7,11 +7,13 @@ public class Library {
     private final LibraryMembershipSystem membership;
     private final Loans loans;
     private final FineManager fineManager;
+    private final SystemClock clock;
 
-    public Library(LibraryMembershipSystem membership, Loans loans, FineManager fineManager) {
+    public Library(LibraryMembershipSystem membership, Loans loans, FineManager fineManager, SystemClock clock) {
         this.membership = membership;
         this.loans = loans;
         this.fineManager = fineManager;
+        this.clock = clock;
     }
 
     public void lend(Book book, Member member) throws LoanException {
@@ -32,7 +34,7 @@ public class Library {
     }
 
     private void loanBook(Book book, Member member) {
-        loans.add(book, member);
+        loans.add(book, member, clock.getLocalDateTime());
     }
 
     private boolean hasMembership(Member member) {
@@ -43,7 +45,6 @@ public class Library {
         return loans.findLoanCountFor(member) >= 2;
     }
 
-    public Member whoHas(Book book) {
-        return loans.findBorrowerOf(book);
+    public void returnMy(Book book) {
     }
 }

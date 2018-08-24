@@ -47,12 +47,12 @@ Feature:
     Then Jon should be told "you cannot borrow any books because you have unpaid fines"
 
   Scenario: Returning a book without incurring a fine
-    Given Jon borrowed the book "Harry Potter" on 17th March
+    Given Jon borrowed the book "Harry Potter" on 17th of March
     When Jon returns the book "Harry Potter" on the 20th of March at 23:59
     Then Jon should not be charged a fine
 
   Scenario: Returning a book late - incurring a fine (after cuttoff)
-    Given Jon borrowed the book "Harry Potter" on 17th March
+    Given Jon borrowed the book "Harry Potter" on 17th of March
     When Jon returns the book "Harry Potter" on the 21st of March at 00:00
     Then Jon should be charged a £5 fine
 
