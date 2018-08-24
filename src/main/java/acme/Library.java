@@ -6,10 +6,12 @@ public class Library {
 
     private final LibraryMembershipSystem membership;
     private final Loans loans;
+    private final FineManager fineManager;
 
-    public Library(LibraryMembershipSystem membership, Loans loans) {
+    public Library(LibraryMembershipSystem membership, Loans loans, FineManager fineManager) {
         this.membership = membership;
         this.loans = loans;
+        this.fineManager = fineManager;
     }
 
     public void lend(Book book, Member member) throws LoanException {
@@ -20,6 +22,10 @@ public class Library {
 
         if (exceedBookAllowance(member)) {
             throw new LoanException("You cannot borrow more than 2 books");
+        }
+
+        if (fineManager.hasFinesFor(member)) {
+            throw new LoanException("you cannot borrow any books because you have unpaid fines");
         }
 
         loanBook(book, member);

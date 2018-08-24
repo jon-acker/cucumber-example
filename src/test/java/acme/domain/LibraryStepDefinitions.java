@@ -23,12 +23,14 @@ public class LibraryStepDefinitions {
     private Library library;
     private LoanException caughtException;
     private Loans loans;
+    private FineManager fineManager;
 
     public LibraryStepDefinitions() {
         stockManager = new StockManager();
         membership = new InMemoryLibraryMembership();
         loans = new InMemoryLoans();
-        library = new Library(membership, loans);
+        fineManager  = new InMemoryFineManager();
+        library = new Library(membership, loans, fineManager);
     }
 
     @Given("^(.*) is a member of the library$")
@@ -95,10 +97,9 @@ public class LibraryStepDefinitions {
         throw new PendingException();
     }
 
-    @Given("^Jon has a £(\\d+) unpaid fine$")
-    public void jonHasA£UnpaidFine(int arg0) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @Given("^(.+) has a £(\\d+) unpaid fine$")
+    public void jonHasAGBPUnpaidFine(@Transform(MemberTransformer.class) Member member, int fineAmount) throws Throwable {
+        fineManager.add(member,fineAmount);
     }
 
     @Given("^Jon borrowed the book \"([^\"]*)\" on (\\d+)th March$")
