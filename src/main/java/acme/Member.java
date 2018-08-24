@@ -4,20 +4,29 @@ import java.util.Objects;
 
 public class Member {
 
+    public class Borrowing {
+
+        private final Book book;
+        private final Member member;
+
+        private Borrowing(Book book, Member member) {
+            this.book = book;
+            this.member = member;
+        }
+
+        public void from(Library library) throws LoanException {
+            library.borrow(this.book, this.member);
+        }
+    }
+
     private final String memberName;
-    private Book book;
 
     public Member(String memberName) {
         this.memberName = memberName;
     }
 
-    public Member borrow(Book book) {
-        this.book = book;
-        return this;
-    }
-
-    public void from(Library library) throws LoanException {
-        library.borrow(this.book, this);
+    public Borrowing borrow(Book book) {
+        return new Borrowing(book, this);
     }
 
     @Override
@@ -30,15 +39,13 @@ public class Member {
 
     @Override
     public int hashCode() {
-        return Objects.hash(memberName, book);
+        return Objects.hash(memberName);
     }
 
     @Override
     public String toString() {
         return "Member{" +
-                "memberName='" + memberName + '\'' +
-                ", book=" + book +
-                '}';
+                "memberName='" + memberName + '}';
     }
 }
 
