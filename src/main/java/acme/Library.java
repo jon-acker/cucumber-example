@@ -12,7 +12,7 @@ public class Library {
         booksAndMembers = new HashMap<>();
     }
 
-    public void borrow(Book book, Member member) throws LoanException {
+    public void lend(Book book, Member member) throws LoanException {
 
         if (!hasMembership(member)) {
             throw new LoanException("You must be a registered member to borrow books");

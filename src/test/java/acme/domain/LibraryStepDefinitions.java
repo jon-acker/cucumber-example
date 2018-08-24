@@ -10,7 +10,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import org.junit.Assert;
 
 import java.util.stream.IntStream;
 
@@ -42,7 +41,7 @@ public class LibraryStepDefinitions {
 
     @When("^(.*) borrows the book \"([^\"]*)\" from the library$")
     public void jonBorrowsTheBookFromTheLibrary(@Transform(MemberTransformer.class) Member member, @Transform(BookTransformer.class) Book book) throws Throwable {
-        member.borrow(book).from(library);
+        library.lend(book, member);
     }
 
     @Then("^stock count for \"([^\"]*)\" should be (\\d+)$")
@@ -64,7 +63,7 @@ public class LibraryStepDefinitions {
     public void triesToBorrowTheBook(@Transform(MemberTransformer.class) Member member,
                                      @Transform(BookTransformer.class) Book book) throws Throwable {
         try {
-            member.borrow(book).from(library);
+            library.lend(book, member);
         } catch (LoanException exception) {
             this.caughtException = exception;
         }
@@ -86,7 +85,7 @@ public class LibraryStepDefinitions {
 
         bookList.raw().forEach(x -> x.forEach(y -> {
             try {
-                member.borrow(new Book(y)).from(library);
+                library.lend(new Book(y), member);
             } catch (LoanException e) {
                 e.printStackTrace();
             }
