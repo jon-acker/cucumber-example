@@ -22,11 +22,13 @@ public class LibraryStepDefinitions {
     private InMemoryLibraryMembership membership;
     private Library library;
     private LoanException caughtException;
+    private Loans loans;
 
     public LibraryStepDefinitions() {
         stockManager = new StockManager();
         membership = new InMemoryLibraryMembership();
-        library = new Library(membership);
+        loans = new InMemoryLoans();
+        library = new Library(membership, loans);
     }
 
     @Given("^(.*) is a member of the library$")

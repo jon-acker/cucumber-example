@@ -5,11 +5,11 @@ import java.util.HashMap;
 public class Library {
 
     private final LibraryMembershipSystem membership;
-    private HashMap<Book, Member> booksAndMembers;
+    private final Loans loans;
 
-    public Library(LibraryMembershipSystem membership) {
+    public Library(LibraryMembershipSystem membership, Loans loans) {
         this.membership = membership;
-        booksAndMembers = new HashMap<>();
+        this.loans = loans;
     }
 
     public void lend(Book book, Member member) throws LoanException {
@@ -25,8 +25,8 @@ public class Library {
         loanBook(book, member);
     }
 
-    private Member loanBook(Book book, Member member) {
-        return booksAndMembers.put(book, member);
+    private void loanBook(Book book, Member member) {
+        loans.add(book, member);
     }
 
     private boolean hasMembership(Member member) {
@@ -34,10 +34,10 @@ public class Library {
     }
 
     private boolean exceedBookAllowance(Member member) {
-        return booksAndMembers.entrySet().stream().filter(x -> x.getValue().equals(member)).count() >= 2;
+        return loans.findLoanCountFor(member) >= 2;
     }
 
     public Member whoHas(Book book) {
-        return booksAndMembers.get(book);
+        return loans.findBorrowerOf(book);
     }
 }
