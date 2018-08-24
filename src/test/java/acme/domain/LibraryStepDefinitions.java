@@ -85,13 +85,7 @@ public class LibraryStepDefinitions {
     @Given("^(.*) has the following books out on loan:$")
     public void memberHasTheFollowingBooksOutOnLoan(@Transform(MemberTransformer.class) Member member, DataTable bookList) throws Throwable {
 
-        bookList.raw().forEach(x -> x.forEach(y -> {
-            try {
-                library.lend(new Book(y), member);
-            } catch (LoanException e) {
-                e.printStackTrace();
-            }
-        }));
+        bookList.raw().forEach(x -> x.forEach(bookName -> loans.add(new Book(bookName), member)));
 
     }
 
